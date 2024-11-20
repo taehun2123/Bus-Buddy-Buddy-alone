@@ -155,7 +155,7 @@ export const withAdmin = (WrappedComponent: React.ComponentType) => {
       const checkAdminAuth = async () => {
         try {
           const response = await axios.get(
-            'https://DevSe.gonetis.com/api/auth/user',
+            'http://devse.gonetis.com:12589/api/auth/user',
           );
           if (response.data?.role !== 'ADMIN') {
             Alert.alert('권한 없음', '관리자 권한이 필요합니다.');
