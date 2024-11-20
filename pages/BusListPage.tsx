@@ -46,7 +46,7 @@ const BusListPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.get<BusResponse>(
-        'http://localhost:8080/api/bus'
+        'http://devse.gonetis.com:12589/api/bus'
       );
       setBusList(response.data.data);
       setError(null);

@@ -67,7 +67,7 @@ const MapViewComponent = () => {
 
   const fetchStations = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/station');
+      const response = await fetch('http://devse.gonetis.com:12589/api/station');
       const data = await response.json();
       setStationPositions(data.data);
     } catch (error) {
@@ -103,7 +103,7 @@ const MapViewComponent = () => {
   }, []);
 
   const initializeWebSocket = useCallback(() => {
-    const ws = new WebSocket('ws://localhost:8080/bus-location');
+    const ws = new WebSocket('ws://devse.gonetis.com:12598/bus-location');
 
     ws.onopen = () => {
       console.log('WebSocket Connected');

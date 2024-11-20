@@ -42,7 +42,7 @@ const BusRoutePage: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/api/bus/stationNames/${busNumber}`
+        `http://devse.gonetis.com:12589/api/bus/stationNames/${busNumber}`
       );
       setStationList(response.data.data);
       setError(null);
@@ -57,7 +57,7 @@ const BusRoutePage: React.FC = () => {
   const handleStationClick = async (stationName: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/station?name=${stationName}`
+        `http://devse.gonetis.com:12589/api/station?name=${stationName}`
       );
       const stationData = response.data.data[0]; // 첫 번째 결과만 사용
       setSelectedStation(stationData);
