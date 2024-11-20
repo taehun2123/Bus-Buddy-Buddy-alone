@@ -57,7 +57,7 @@ const SearchBar: React.FC = () => {
 
     try {
       const response = await axios.get(
-        'http://localhost:8080/api/station',
+        'http://devse.gonetis.com:12589/api/station',
         {
           params: {
             name: stationName,

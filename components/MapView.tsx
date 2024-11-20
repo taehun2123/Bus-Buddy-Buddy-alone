@@ -82,7 +82,8 @@ const MapViewComponent = () => {
       const newBusPositions = rows
         .filter(Boolean)
         .map((row: string) => {
-          const [busNumber, lat, lng] = row.split(',');
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [busNumber, lat, lng, seats] = row.split(',');
           return {
             busNumber: busNumber.trim(),
             location: {
@@ -103,7 +104,7 @@ const MapViewComponent = () => {
   }, []);
 
   const initializeWebSocket = useCallback(() => {
-    const ws = new WebSocket('ws://devse.gonetis.com:12598/bus-location');
+    const ws = new WebSocket('ws://devse.gonetis.com:12599/bus-location');
 
     ws.onopen = () => {
       console.log('WebSocket Connected');

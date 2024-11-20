@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:8080/api/auth/user'
+          'http://devse.gonetis.com:12589/api/auth/user'
         );
         if (isMounted) {
           setUserInfo(response.data.data);
