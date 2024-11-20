@@ -1,9 +1,11 @@
 # OSX
 #
 .DS_Store
-
+.env
 # Xcode
 #
+#react-native-config
+ios/tmp.xcconfig
 build/
 *.pbxuser
 !default.pbxuser

@@ -1,7 +1,14 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+// 빌드 타입마다 .env가 바뀌어야 하는 경우 아래코드 설정 (.env 하나인 경우 무관)
+project.ext.envConfigFiles = [
+    debug: ".env.debug",
+    release: ".env",
+    anothercustombuild: ".env.staging",
+]
 
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle" // 추가
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -80,6 +87,7 @@ android {
     namespace "com.capstonbbbbnative"
     defaultConfig {
         applicationId "com.capstonbbbbnative"
+        resValue "string", "build_config_package", "com.capstonbbbbnative" // 추가
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
