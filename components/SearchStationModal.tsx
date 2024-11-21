@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
   Text,
   Modal,
   TextInput,
@@ -10,6 +9,7 @@ import {
   Dimensions,
   Platform,
   KeyboardAvoidingView,
+  BackHandler,
 } from 'react-native';
 import axios from 'axios';
 import LoadingPage from '../pages/LoadingPage';
@@ -38,7 +38,7 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
   toggleFavorite,
 }) => {
   const {modalName, isModal} = useModalState();
-  const {openModal, closeModal} = useModalActions();
+  const {closeModal} = useModalActions();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Station[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,9 +46,59 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
   
   const searchInputRef = useRef<TextInput>(null);
   const { setSelectedStation } = useSelectedStationStore();
+  const isVisible = modalName === 'minSearchModal' && isModal;
+
+  // Android 백버튼 핸들링
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (isVisible) {
+        closeModal();
+        return true;
+      }
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [isVisible, closeModal]);
+
+  // 심플하게 모달 닫기만 처리
+  const handleCloseModal = () => {
+    closeModal();
+  };
+
+  // 정류장 선택 시
+  const handleStationSelect = (station: Station) => {
+    setSelectedStation(station);
+    handleCloseModal();
+  };
+
+  // 검색어 변경 시 - 디바운스 추가
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleSearchChange = (text: string) => {
+    setSearchTerm(text);
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      handleSearch(text);
+    }, 300);
+  };
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 전체 정류장 데이터 조회
   const fetchAllStations = async () => {
+    if (!isVisible) return;
+    
     try {
       setIsLoading(true);
       const response = await axios.get(`${API_BASE_URL}/api/station`);
@@ -64,6 +114,8 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
 
   // 정류장 검색
   const handleSearch = async (stationName: string) => {
+    if (!isVisible) return;
+    
     if (!stationName.trim()) {
       fetchAllStations();
       return;
@@ -88,8 +140,11 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
 
   // 초기 데이터 로드
   useEffect(() => {
-    fetchAllStations();
-  }, []);
+    if (isVisible) {
+      fetchAllStations();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
 
   const renderStationItem = ({ item }: { item: Station }) => {
     const isFavorite = favoriteStations?.some(fs => fs.id === item.id);
@@ -97,16 +152,16 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
     return (
       <TouchableOpacity
         style={styles.busStopItem}
-        onPress={() => {
-          setSelectedStation(item);
-          closeModal('minSearchModal');
-        }}
+        onPress={() => handleStationSelect(item)}
         activeOpacity={0.7}
       >
         <Text style={styles.stationName}>{item.name}</Text>
         <TouchableOpacity
           style={styles.favoriteButton}
-          onPress={() => toggleFavorite?.(item.id)}
+          onPress={() => {
+            toggleFavorite?.(item.id);
+            handleCloseModal();
+          }}
         >
           <Text style={[
             styles.favoriteIcon,
@@ -119,67 +174,74 @@ const SearchStationModal: React.FC<SearchStationModalProps> = ({
     );
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
+  if (!isVisible) {
+    return null;
   }
 
   return (
     <Modal
-      visible={modalName === 'minSearchModal' && isModal}
+      visible={true}
       transparent
       animationType="fade"
-      onRequestClose={()=> closeModal('minSearchModal')}
+      onRequestClose={handleCloseModal}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.modalContainer}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500}
       >
         <TouchableOpacity
           style={styles.overlay}
           activeOpacity={1}
-          onPress={()=>openModal('minSearchModal')}
+          onPress={handleCloseModal}
         >
-          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-            <Text style={styles.title}>정류장 검색</Text>
-            
-            <TextInput
-              ref={searchInputRef}
-              style={styles.searchInput}
-              placeholder="검색할 정류장 이름 입력"
-              value={searchTerm}
-              onChangeText={(text) => {
-                setSearchTerm(text);
-                handleSearch(text);
-              }}
-              returnKeyType="search"
-              autoFocus
-            />
-
-            {error ? (
-              <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.modalContent}
+            activeOpacity={1}
+          >
+            {isLoading ? (
+              <LoadingPage />
             ) : (
-              <FlatList
-                data={searchResults}
-                renderItem={renderStationItem}
-                keyExtractor={(item) => item.id}
-                style={styles.busStopList}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                  <Text style={styles.emptyText}>
-                    검색 결과가 없습니다.
-                  </Text>
-                }
-              />
-            )}
+              <>
+                <Text style={styles.title}>정류장 검색</Text>
+                
+                <TextInput
+                  ref={searchInputRef}
+                  style={styles.searchInput}
+                  placeholder="검색할 정류장 이름 입력"
+                  value={searchTerm}
+                  onChangeText={handleSearchChange}
+                  returnKeyType="search"
+                  autoFocus
+                />
 
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={()=>closeModal('minSearchModal')}
-            >
-              <Text style={styles.closeButtonText}>닫기</Text>
-            </TouchableOpacity>
-          </View>
+                {error ? (
+                  <Text style={styles.errorText}>{error}</Text>
+                ) : (
+                  <FlatList
+                    data={searchResults}
+                    renderItem={renderStationItem}
+                    keyExtractor={(item) => item.id}
+                    style={styles.busStopList}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <Text style={styles.emptyText}>
+                        검색 결과가 없습니다.
+                      </Text>
+                    }
+                  />
+                )}
+
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={handleCloseModal}
+                >
+                  <Text style={styles.closeButtonText}>닫기</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </TouchableOpacity>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </Modal>

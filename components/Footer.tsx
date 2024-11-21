@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: 20,
     paddingHorizontal: 8,
     zIndex: 100,
     ...Platform.select({

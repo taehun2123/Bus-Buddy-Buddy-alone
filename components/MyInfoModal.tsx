@@ -165,7 +165,7 @@ const MyInfoModal: React.FC = () => {
     }).start(() => {
       setIsVisible(false);
       setIsAnimating(false);
-      closeModal(modalName);
+      closeModal();
     });
   };
 
@@ -291,14 +291,14 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 8,
+    top: 30,
     right: 16,
     zIndex: 1,
     padding: 8,
   },
   closeButtonText: {
-    fontSize: 24,
-    color: '#000000',
+    fontSize: 35,
+    color: '#CC0000',
   },
   modalHeader: {
     marginBottom: 24,

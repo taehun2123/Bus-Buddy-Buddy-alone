@@ -11,6 +11,7 @@ import {
   Dimensions,
   Platform,
   KeyboardAvoidingView,
+  SafeAreaView,
 } from 'react-native';
 import CommonSearchBarModule from './CommonSearchBarModule';
 import useSelectedStationStore from '../../store/useSelectedStationStore';
@@ -20,7 +21,6 @@ const { width } = Dimensions.get('window');
 interface Station {
   id: string;
   name: string;
-  // 다른 필요한 station 속성들
 }
 
 interface FullScreenSearchModalProps {
@@ -32,7 +32,7 @@ interface FullScreenSearchModalProps {
   isLoading: boolean;
   error: string | null;
   toggleFavorite?: (station: Station) => void;
-  onStationSelect?: (station: Station) => void; // 추가된 부분
+  onStationSelect?: (station: Station) => void;
 }
 
 const FullScreenSearchModal: React.FC<FullScreenSearchModalProps> = ({
@@ -55,9 +55,9 @@ const FullScreenSearchModal: React.FC<FullScreenSearchModalProps> = ({
 
   const handleStationClick = (station: Station) => {
     setSelectedStation(station);
-    if (onStationSelect) { // 추가된 부분
-      onStationSelect(station); // 추가된 부분
-  }
+    if (onStationSelect) {
+      onStationSelect(station);
+    }
     onClose();
   };
 
@@ -116,29 +116,31 @@ const FullScreenSearchModal: React.FC<FullScreenSearchModalProps> = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.modalContent}>
-          <CommonSearchBarModule
-            searchStationName={searchStationName}
-            setSearchStationName={setSearchStationName}
-            onSearch={onSearch}
-            inputRef={searchInputRef}
-          />
-          <View style={styles.resultContainer}>
-            {renderContent()}
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={styles.modalContent}>
+            <CommonSearchBarModule
+              searchStationName={searchStationName}
+              setSearchStationName={setSearchStationName}
+              onSearch={onSearch}
+              inputRef={searchInputRef}
+            />
+            <View style={styles.resultContainer}>
+              {renderContent()}
+            </View>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.closeButtonText}>닫기</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </Modal>
   );
 };
@@ -148,9 +150,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   modalContent: {
     flex: 1,
     alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 10 : 0, // iOS에서 상단 여백 추가
   },
   resultContainer: {
     flex: 1,
