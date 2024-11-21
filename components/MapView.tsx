@@ -83,7 +83,7 @@ const MapViewComponent = () => {
         .filter(Boolean)
         .map((row: string) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [busNumber, lat, lng, seats] = row.split(',');
+          const [busNumber, lng, lat, seats] = row.split(',');
           return {
             busNumber: busNumber.trim(),
             location: {
