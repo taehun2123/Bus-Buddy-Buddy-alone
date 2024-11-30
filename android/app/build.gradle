@@ -92,6 +92,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+            appAuthRedirectScheme: "com.capstonbbbbnative://oauth2callback"  // OAuth 리다이렉트 URI에 맞게 설정
+        ]
     }
     signingConfigs {
         debug {
@@ -118,6 +121,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation("com.naver.maps:map-sdk:3.19.1")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

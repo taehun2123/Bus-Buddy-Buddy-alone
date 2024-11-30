@@ -36,7 +36,7 @@ interface ApiResponse {
 
 const API_BASE_URL = Platform.select({
   ios: 'http://devse.gonetis.com:12589',
-  android: 'http://10.0.2.2:8080'
+  android: 'http://devse.gonetis.com:12589'
 });
 
 const MyInfoModal: React.FC = () => {
