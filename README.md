@@ -1,5 +1,6 @@
 # Bus Buddy Buddy(BBB) Project
-  - * 현재는 개발중에 있음
+  - * Bus-Buddy-Buddy 팀 레포로 옮김.
+    * 해당 레포지토리는 초기 release v0.0.1 버전 - IOS만 구현됨
       
 - React-Native + TypeScript
 - ios + Android 호환
